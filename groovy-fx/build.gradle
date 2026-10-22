@@ -1,0 +1,65 @@
+// The groovy-fx module from apache/groovy PR #2989 (GROOVY-11434), not yet merged and targeting
+// Groovy 7. Until it ships, its sources are taken straight from that branch and compiled here
+// against Groovy 6: from a local apache/groovy clone when one has the branch (-PgroovyRepo=...),
+// otherwise from the PR's head repository on GitHub.
+plugins {
+    id 'groovy'
+    id 'java-library'
+}
+
+group = 'org.apache.groovy'
+version = '6.0.0-fx-preview'
+
+def fxBranch = providers.gradleProperty('groovyFxBranch').getOrElse('groovy11434')
+def groovyRepo = file(providers.gradleProperty('groovyRepo').getOrElse("${System.getProperty('user.home')}/projects/groovy"))
+def fxRemote = 'https://github.com/paulk-asert/groovy.git'
+def fxSrc = layout.buildDirectory.dir('groovy-fx-src')
+
+def extractSources = tasks.register('extractGroovyFxSources') {
+    description = "Extracts the groovy-fx sources from the $fxBranch branch"
+    outputs.dir(fxSrc)
+    outputs.upToDateWhen { fxSrc.get().dir('subprojects/groovy-fx/src/main').asFile.directory }
+    doLast {
+        def out = fxSrc.get().asFile
+        project.delete(out)
+        out.mkdirs()
+        def local = new File(groovyRepo, '.git').exists() &&
+            ['git', '-C', groovyRepo.path, 'rev-parse', '--verify', '-q', fxBranch].execute().waitFor() == 0
+        def tmp = new File(temporaryDir, 'clone')
+        def repo = local ? groovyRepo : tmp
+        if (!local) {
+            project.delete(tmp)
+            def clone = ['git', 'clone', '-q', '--depth', '1', '--filter=blob:none', '-b', fxBranch, fxRemote, tmp.path].execute()
+            clone.waitForProcessOutput(System.out, System.err)
+            assert clone.exitValue() == 0 : "could not clone $fxRemote"
+        }
+        def archive = new File(temporaryDir, 'groovy-fx.tar')
+        def git = ['git', '-C', repo.path, 'archive', '-o', archive.path, local ? fxBranch : 'HEAD', 'subprojects/groovy-fx/src/main'].execute()
+        git.waitForProcessOutput(System.out, System.err)
+        assert git.exitValue() == 0 : "git archive of $fxBranch failed"
+        project.copy {
+            from(project.tarTree(archive))
+            into(out)
+            // the published Groovy jar shades ASM; Groovy's own build relocates this at jar time
+            filter { String line -> line.replace('org.objectweb.asm.', 'groovyjarjarasm.asm.') }
+        }
+    }
+}
+
+sourceSets.main {
+    java.srcDirs = []
+    // joint compilation: the Groovy factories and the Java AST transform reference each other
+    groovy.srcDir(extractSources.map { fxSrc.get().dir('subprojects/groovy-fx/src/main/java') })
+    groovy.srcDir(extractSources.map { fxSrc.get().dir('subprojects/groovy-fx/src/main/groovy') })
+}
+
+repositories { mavenCentral() }
+
+java {
+    toolchain { languageVersion = JavaLanguageVersion.of(21) }
+}
+
+dependencies {
+    api "org.apache.groovy:groovy:$groovyVersion"
+    rootProject.javafxModules.each { compileOnlyApi(it) { transitive = false } }
+}

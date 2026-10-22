@@ -1,0 +1,11 @@
+// OpenJFX publishes one jar per platform (the classifier-less artifact is an empty stub) and its
+// poms pick transitive classifiers through Maven profiles Gradle ignores, so each module is listed
+// explicitly with the classifier for the machine running the build.
+ext.javafxModules = {
+    String os = System.getProperty('os.name').toLowerCase(Locale.ROOT)
+    String arch = System.getProperty('os.arch').toLowerCase(Locale.ROOT)
+    boolean aarch64 = arch == 'aarch64' || arch == 'arm64'
+    String classifier = os.contains('mac') ? (aarch64 ? 'mac-aarch64' : 'mac')
+        : os.contains('win') ? 'win' : (aarch64 ? 'linux-aarch64' : 'linux')
+    ['javafx-base', 'javafx-graphics', 'javafx-controls'].collect { "org.openjfx:$it:$javafxVersion:$classifier" }
+}()

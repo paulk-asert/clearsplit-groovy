@@ -1,0 +1,4 @@
+moduleName=groovy-fx
+moduleVersion=6.0.0-fx-preview
+extensionClasses=org.apache.groovy.groovyfx.extensions.FXExtensions
+staticExtensionClasses=

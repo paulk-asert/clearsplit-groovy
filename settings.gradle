@@ -1,0 +1,10 @@
+rootProject.name = 'clearsplit-groovy'
+
+// groovy-verify isn't on Maven Central yet: ride its HEAD as a source dependency from a sibling
+// checkout (override the location with -PgroovyVerifyDir=...), else fall back to mavenLocal().
+def verifyDir = file(providers.gradleProperty('groovyVerifyDir').getOrElse('../groovy-verify'))
+if (verifyDir.directory) {
+    includeBuild(verifyDir)
+}
+
+include 'core', 'groovy-fx', 'web', 'fx'

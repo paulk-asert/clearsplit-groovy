@@ -1,0 +1,43 @@
+plugins {
+    id 'groovy'
+    id 'application'
+}
+
+repositories { mavenCentral() }
+
+java {
+    toolchain { languageVersion = JavaLanguageVersion.of(21) }
+}
+
+dependencies {
+    implementation project(':core')
+    implementation project(':groovy-fx')
+    implementation "org.apache.groovy:groovy:$groovyVersion"
+    implementation "org.apache.groovy:groovy-contracts:$groovyVersion"
+    // JavaFX is supplied by the app, never bundled with groovy-fx (GPL-2.0 + Classpath Exception)
+    rootProject.javafxModules.each { implementation(it) { transitive = false } }
+}
+
+application {
+    mainClass = 'clearsplit.fx.ClearSplitFX'
+}
+
+dependencies {
+    testImplementation "org.apache.groovy:groovy-test-junit6:$groovyVersion"
+    testImplementation platform("org.junit:junit-bom:$junitVersion")
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+    // javafx-swing for writing snapshots as PNGs
+    testImplementation(rootProject.javafxModules[0].replace('javafx-base', 'javafx-swing')) { transitive = false }
+    // headless glass platform so the UI test runs without a display
+    testImplementation('org.testfx:openjfx-monocle:21.0.2') { transitive = false }
+}
+
+test {
+    useJUnitPlatform()
+    systemProperty 'glass.platform', 'Monocle'
+    systemProperty 'monocle.platform', 'Headless'
+    systemProperty 'prism.order', 'sw'
+    systemProperty 'java.awt.headless', 'true'
+    systemProperty 'snapshotDir', layout.buildDirectory.dir('snapshots').get().asFile.path
+}

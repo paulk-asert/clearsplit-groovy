@@ -1,0 +1,41 @@
+plugins {
+    id 'groovy'
+    id 'java-library'
+}
+
+group = 'clearsplit'
+version = '0.1.0'
+
+repositories {
+    mavenCentral()
+    mavenLocal()
+}
+
+java {
+    toolchain { languageVersion = JavaLanguageVersion.of(17) }
+}
+
+dependencies {
+    // Groovy and groovy-contracts are supplied by each consuming app at its own Groovy version
+    // (Grails 8 brings 5.1.x, the GroovyFX app 7.0.0-SNAPSHOT); the core is compiled against 6.0.0.
+    compileOnlyApi "org.apache.groovy:groovy:$groovyVersion"
+    compileOnlyApi "org.apache.groovy:groovy-contracts:$groovyVersion"
+    // compile-time only: the verifier and its Z3 solver never reach a runtime classpath
+    compileOnly "io.github.paulk-asert:groovy-verify:$groovyVerifyVersion"
+
+    testImplementation "org.apache.groovy:groovy:$groovyVersion"
+    testImplementation "org.apache.groovy:groovy-contracts:$groovyVersion"
+    testImplementation "org.apache.groovy:groovy-test-junit6:$groovyVersion"
+    testImplementation platform("org.junit:junit-bom:$junitVersion")
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+tasks.withType(GroovyCompile).configureEach {
+    // verification runs inside the compiler, so a failed proof fails this task
+    groovyOptions.forkOptions.jvmArgs = ['-Xss8m', '-Xmx2g', '-Dverify.z3.timeoutMs=8000']
+}
+
+test {
+    useJUnitPlatform()
+}
