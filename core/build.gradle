@@ -16,8 +16,8 @@ java {
 }
 
 dependencies {
-    // Groovy and groovy-contracts are supplied by each consuming app at its own Groovy version
-    // (Grails 8 brings 5.1.x, the GroovyFX app 7.0.0-SNAPSHOT); the core is compiled against 6.0.0.
+    // Groovy and groovy-contracts are supplied by each consuming app (on Android, the grooid
+    // flavour of the Groovy jar); the core is compiled against $groovyVersion.
     compileOnlyApi "org.apache.groovy:groovy:$groovyVersion"
     compileOnlyApi "org.apache.groovy:groovy-contracts:$groovyVersion"
     // compile-time only: the verifier and its Z3 solver never reach a runtime classpath

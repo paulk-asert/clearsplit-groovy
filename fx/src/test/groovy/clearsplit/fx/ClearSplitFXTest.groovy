@@ -19,13 +19,19 @@ class ClearSplitFXTest {
             description.text = 'Dinner'
             amount.text = '90'
             addExpense.fire()
-            from.value = 'Carol'; to.value = 'Alice'; paid.text = '25'
+            // Carol pays for a taxi Alice didn't take
+            description.text = 'Taxi'
+            payer.value = 'Carol'
+            amount.text = '10'
+            participants.children[0].selected = false
+            addExpense.fire()
+            from.value = 'Bob'; to.value = 'Alice'; paid.text = '20'
             recordPayment.fire()
         }
-        assert app.group.balances() == [3500, -3000, -500] as int[]
+        assert app.group.balances() == [4000, -1500, -2500] as int[]
         assert fx.status.text == 'Payment recorded'
-        assert fx.history.items.size() == 2
-        assert fx.table.children*.text.contains('$35.00')
+        assert fx.history.items.size() == 3
+        assert fx.table.children*.text.contains('$40.00')
         snapshot(fx, 'balances')
     }
 

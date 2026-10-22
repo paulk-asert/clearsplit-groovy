@@ -1,0 +1,53 @@
+plugins {
+    id 'com.android.application' version '9.4.0'
+}
+
+repositories {
+    google()
+    mavenCentral()
+}
+
+android {
+    namespace 'clearsplit.android'
+    compileSdk 36
+
+    defaultConfig {
+        applicationId 'clearsplit.android'
+        // Groovy 6 emits invokedynamic for every dynamic call, which D8 accepts from API 26 up
+        minSdk 26
+        targetSdk 36
+        versionCode 1
+        versionName '0.1.0'
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+
+    buildTypes {
+        release {
+            signingConfig signingConfigs.debug   // demo: installable release build
+            minifyEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    packaging {
+        resources {
+            excludes += ['META-INF/INDEX.LIST', 'META-INF/LICENSE', 'META-INF/NOTICE', 'META-INF/licenses/**']
+            // groovy-contracts ships its own copy of the release info; either will do
+            pickFirsts += ['META-INF/groovy-release-info.properties']
+        }
+    }
+}
+
+dependencies {
+    implementation project(':android:ui')
+    // The Android flavour of the Groovy runtime: the groovy jar with java.beans replaced by a
+    // repackaged openbeans, since Android has no Introspector. The other modules compile against
+    // the plain jar; on the device this jar stands in for it.
+    runtimeOnly "org.apache.groovy:groovy:$groovyVersion:grooid"
+    implementation project(':android:shim')   // experiment: java.lang.invoke.SwitchPoint for ART
+    implementation project(':android:management-shim')   // experiment: java.lang.management for groovy-contracts
+}

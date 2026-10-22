@@ -1,0 +1,20 @@
+// The Android screens: a plain Groovy library compiled by groovyc on the JVM against the SDK's
+// android.jar stubs, consumed by :android:app like any jar (the groovy-android-tictactoe approach).
+plugins {
+    id 'groovy'
+}
+
+repositories { mavenCentral() }
+
+java {
+    toolchain { languageVersion = JavaLanguageVersion.of(17) }
+}
+
+dependencies {
+    implementation project(':core')
+    // compile against the plain jar; the app module supplies the Android (grooid) jar at run time
+    compileOnly "org.apache.groovy:groovy:$groovyVersion"
+    compileOnly files("${gradle.androidSdk}/platforms/android-36/android.jar")
+    // the core's contracts run as runtime checks on the device too
+    implementation("org.apache.groovy:groovy-contracts:$groovyVersion") { transitive = false }
+}

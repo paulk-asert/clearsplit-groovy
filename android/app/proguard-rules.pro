@@ -1,0 +1,126 @@
+# Release (R8) rules for a dynamic Groovy application, as in groovy-android-tictactoe.
+# The application's classes are dispatched to by name and by reflection, so keep them whole,
+# the verified core included.
+-keep class clearsplit.** { *; }
+-keep class org.apache.groovy.contracts.** { *; }
+-keepclassmembers class * implements org.codehaus.groovy.runtime.GeneratedClosure { *; }
+# Groovy compiles enum constants and named-argument constructors to a by-name call of
+# ImmutableASTTransformation.checkPropNames, so the class must survive under its own name
+-keep class org.codehaus.groovy.transform.ImmutableASTTransformation { *; }
+-dontwarn **
+-keepattributes *Annotation*,Signature,InnerClasses,EnclosingMethod,SourceFile,LineNumberTable
+
+# ---- generated from the reachability metadata shipped in the Groovy jars (json2pro.py) ----
+
+# from /dev/fd/11
+-keep class groovy.io.FileType
+-keep class groovy.lang.Binding { *; }
+-keep class groovy.lang.Buildable { *; }
+-keep class groovy.lang.Closure { *; }
+-keep class groovy.lang.Closure$1 { *; }
+-keep class groovy.lang.DelegatingMetaClass { *; }
+-keep class groovy.lang.EmptyRange { *; }
+-keep class groovy.lang.ExpandoMetaClass { *; }
+-keep class groovy.lang.GString { *; }
+-keep class groovy.lang.GString$1 { *; }
+-keep class groovy.lang.GroovyCallable { *; }
+-keep class groovy.lang.GroovyObject { *; }
+-keep class groovy.lang.GroovyObjectSupport { *; }
+-keep class groovy.lang.GroovySystem { *; }
+-keep class groovy.lang.IntRange { *; }
+-keep class groovy.lang.ListWithDefault { *; }
+-keep class groovy.lang.MetaClass { *; }
+-keep class groovy.lang.MetaClassImpl { *; }
+-keep class groovy.lang.MetaClassRegistry { *; }
+-keep class groovy.lang.MetaMember { *; }
+-keep class groovy.lang.MetaObjectProtocol { *; }
+-keep class groovy.lang.MetaProperty { *; }
+-keep class groovy.lang.MutableMetaClass { *; }
+-keep class groovy.lang.ObjectRange { *; }
+-keep class groovy.lang.Range { *; }
+-keep class groovy.lang.Reference { *; }
+-keep class groovy.lang.Script { *; }
+-keep class groovy.lang.SpreadMap
+-keep class groovy.lang.Tuple
+-keep class groovy.lang.Tuple2
+-keep class groovy.lang.Writable { *; }
+-keep class groovy.lang.groovydoc.Groovydoc
+-keep class groovy.time.Timed
+-keep class groovy.util.BufferedIterator { *; }
+-keep class groovy.util.function.DoubleComparator { *; }
+-keep class groovy.util.function.FloatComparator { *; }
+-keep class groovy.util.function.FloatUnaryOperator { *; }
+-keep class groovy.util.function.IntComparator { *; }
+-keep class groovy.util.function.LongComparator { *; }
+-keep class groovy.util.regex.BalancedGroup$MatchOptions
+-keep class org.codehaus.groovy.runtime.ArrayGroovyMethods { *; }
+-keep class org.codehaus.groovy.runtime.ComposedClosure { *; }
+-keep class org.codehaus.groovy.runtime.CurriedClosure { *; }
+-keep class org.codehaus.groovy.runtime.DefaultGroovyMethods { *; }
+-keep class org.codehaus.groovy.runtime.DefaultGroovyMethodsSupport { *; }
+-keep class org.codehaus.groovy.runtime.DefaultGroovyStaticMethods { *; }
+-keep class org.codehaus.groovy.runtime.DgmProxyFactory
+-keep class org.codehaus.groovy.runtime.EncodingGroovyMethods { *; }
+-keep class org.codehaus.groovy.runtime.GStringImpl { *; }
+-keep class org.codehaus.groovy.runtime.GeneratedClosure { *; }
+-keep class org.codehaus.groovy.runtime.GeneratedLambda { *; }
+-keep class org.codehaus.groovy.runtime.HandleMetaClass { *; }
+-keep class org.codehaus.groovy.runtime.IOGroovyMethods { *; }
+-keep class org.codehaus.groovy.runtime.InvokerHelper { *; }
+-keep class org.codehaus.groovy.runtime.IteratorClosureAdapter { *; }
+-keep class org.codehaus.groovy.runtime.MethodClosure { *; }
+-keep class org.codehaus.groovy.runtime.NullObject { *; }
+-keep class org.codehaus.groovy.runtime.ParallelCollectionExtensions { *; }
+-keep class org.codehaus.groovy.runtime.ProcessGroovyMethods { *; }
+-keep class org.codehaus.groovy.runtime.ProcessResult
+-keep class org.codehaus.groovy.runtime.ResourceGroovyMethods { *; }
+-keep class org.codehaus.groovy.runtime.SocketGroovyMethods { *; }
+-keep class org.codehaus.groovy.runtime.StreamGroovyMethods { *; }
+-keep class org.codehaus.groovy.runtime.StringGroovyMethods { *; }
+-keep class org.codehaus.groovy.runtime.dgmimpl.NumberNumberDiv { *; }
+-keep class org.codehaus.groovy.runtime.dgmimpl.NumberNumberMinus { *; }
+-keep class org.codehaus.groovy.runtime.dgmimpl.NumberNumberMultiply { *; }
+-keep class org.codehaus.groovy.runtime.dgmimpl.NumberNumberPlus { *; }
+-keep class org.codehaus.groovy.runtime.dgmimpl.arrays.BooleanArrayGetAtMetaMethod { *; }
+-keep class org.codehaus.groovy.runtime.dgmimpl.arrays.BooleanArrayPutAtMetaMethod { *; }
+-keep class org.codehaus.groovy.runtime.dgmimpl.arrays.ByteArrayGetAtMetaMethod { *; }
+-keep class org.codehaus.groovy.runtime.dgmimpl.arrays.ByteArrayPutAtMetaMethod { *; }
+-keep class org.codehaus.groovy.runtime.dgmimpl.arrays.CharacterArrayGetAtMetaMethod { *; }
+-keep class org.codehaus.groovy.runtime.dgmimpl.arrays.CharacterArrayPutAtMetaMethod { *; }
+-keep class org.codehaus.groovy.runtime.dgmimpl.arrays.DoubleArrayGetAtMetaMethod { *; }
+-keep class org.codehaus.groovy.runtime.dgmimpl.arrays.DoubleArrayPutAtMetaMethod { *; }
+-keep class org.codehaus.groovy.runtime.dgmimpl.arrays.FloatArrayGetAtMetaMethod { *; }
+-keep class org.codehaus.groovy.runtime.dgmimpl.arrays.FloatArrayPutAtMetaMethod { *; }
+-keep class org.codehaus.groovy.runtime.dgmimpl.arrays.IntegerArrayGetAtMetaMethod { *; }
+-keep class org.codehaus.groovy.runtime.dgmimpl.arrays.IntegerArrayPutAtMetaMethod { *; }
+-keep class org.codehaus.groovy.runtime.dgmimpl.arrays.LongArrayGetAtMetaMethod { *; }
+-keep class org.codehaus.groovy.runtime.dgmimpl.arrays.LongArrayPutAtMetaMethod { *; }
+-keep class org.codehaus.groovy.runtime.dgmimpl.arrays.ObjectArrayGetAtMetaMethod { *; }
+-keep class org.codehaus.groovy.runtime.dgmimpl.arrays.ObjectArrayPutAtMetaMethod { *; }
+-keep class org.codehaus.groovy.runtime.dgmimpl.arrays.ShortArrayGetAtMetaMethod { *; }
+-keep class org.codehaus.groovy.runtime.dgmimpl.arrays.ShortArrayPutAtMetaMethod { *; }
+-keep class org.codehaus.groovy.runtime.metaclass.MetaClassRegistryImpl { *; }
+-keep class org.codehaus.groovy.vmplugin.v10.PluginDefaultGroovyMethods { *; }
+-keep class org.codehaus.groovy.vmplugin.v8.PluginDefaultGroovyMethods { *; }
+-keep class org.codehaus.groovy.vmplugin.v9.PluginDefaultGroovyMethods { *; }
+-keep class groovy.lang.GroovyObject { *; }
+-keep class groovy.lang.MetaClass { *; }
+-keep class groovy.lang.MetaMethod { *; }
+-keep class groovy.lang.MetaObjectProtocol { *; }
+-keep class groovy.lang.MetaProperty { *; }
+-keep class groovy.util.ProxyGenerator { *; }
+-keep class org.codehaus.groovy.reflection.stdclasses.CachedSAMClass { *; }
+-keep class org.codehaus.groovy.runtime.ConvertedClosure { *; }
+-keep class org.codehaus.groovy.runtime.GroovyCategorySupport { *; }
+-keep class org.codehaus.groovy.runtime.InvokerHelper { *; }
+-keep class org.codehaus.groovy.runtime.ScriptBytecodeAdapter { *; }
+-keep class org.codehaus.groovy.runtime.typehandling.DefaultTypeTransformation { *; }
+-keep class org.codehaus.groovy.runtime.typehandling.GroovyCastException { *; }
+-keep class org.codehaus.groovy.vmplugin.v8.IndyArrayAccess { *; }
+-keep class org.codehaus.groovy.vmplugin.v8.IndyCompoundAssign { *; }
+-keep class org.codehaus.groovy.vmplugin.v8.IndyGuardsFiltersAndSignatures { *; }
+-keep class org.codehaus.groovy.vmplugin.v8.IndyInterface { *; }
+-keep class org.codehaus.groovy.vmplugin.v8.IndyMath { *; }
+-keep class groovy.beans.ListenerList
+-keep class groovy.lang.GroovySystem
+

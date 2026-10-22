@@ -1,3 +1,11 @@
+pluginManagement {
+    repositories {
+        gradlePluginPortal()
+        google()
+        mavenCentral()
+    }
+}
+
 rootProject.name = 'clearsplit-groovy'
 
 // groovy-verify isn't on Maven Central yet: ride its HEAD as a source dependency from a sibling
@@ -8,3 +16,13 @@ if (verifyDir.directory) {
 }
 
 include 'core', 'groovy-fx', 'web', 'fx'
+
+// The Android app joins the build only where an Android SDK is installed, so the rest builds anywhere
+def sdkProps = new Properties()
+def localProps = file('local.properties')
+if (localProps.exists()) localProps.withInputStream { sdkProps.load(it) }
+def androidSdk = sdkProps.getProperty('sdk.dir') ?: System.getenv('ANDROID_HOME') ?: System.getenv('ANDROID_SDK_ROOT')
+if (androidSdk && new File(androidSdk).directory) {
+    gradle.ext.androidSdk = androidSdk
+    include 'android:ui', 'android:app', 'android:shim', 'android:management-shim'
+}

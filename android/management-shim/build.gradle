@@ -1,0 +1,14 @@
+// EXPERIMENT ONLY: a stub java.lang.management, which ART does not have. groovy-contracts reads the
+// JVM's -ea/-da flags through it when the first contract runs; ART takes no such flags, so the stub
+// reports none and contracts stay enabled, their default. The real fix belongs in groovy-contracts
+// (fall back to the default when the management API is missing). Its own module because javac
+// patches only one JDK module per compilation.
+plugins {
+    id 'java-library'
+}
+java {
+    toolchain { languageVersion = JavaLanguageVersion.of(17) }
+}
+tasks.withType(JavaCompile).configureEach {
+    options.compilerArgs += ['--patch-module', 'java.management=' + file('src/main/java').absolutePath]
+}

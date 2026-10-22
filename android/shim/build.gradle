@@ -1,0 +1,14 @@
+// EXPERIMENT ONLY: supplies java.lang.invoke.SwitchPoint, which ART does not have, so that the
+// Groovy 6 runtime's invalidation machinery can link on Android. Built on MutableCallSite, which
+// ART does have. A real solution belongs in Groovy (an invalidation abstraction), not here.
+plugins {
+    id 'java-library'
+}
+java {
+    toolchain { languageVersion = JavaLanguageVersion.of(17) }
+}
+tasks.withType(JavaCompile).configureEach {
+    // javac refuses to compile classes into java.* by default when they would clash with the
+    // platform; --patch-module lets us compile a class that only Android will ever load.
+    options.compilerArgs += ['--patch-module', 'java.base=' + file('src/main/java').absolutePath]
+}
