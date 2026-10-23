@@ -18,7 +18,7 @@ class Balances {
      * or destroyed.
      */
     @Requires({ bal != null && shares != null && shares.length == bal.length && 0 <= payer && payer < bal.length })
-    @Ensures({ result.length == bal.length })
+    @Ensures({ result != null && result.length == bal.length })
     @Ensures({ (0..<bal.length).every { result[it] == bal[it] + (it == payer ? amount : 0) - shares[it] } })
     @Ensures({ shares.sum() == amount ==> result.sum() == bal.sum() })
     static int[] afterExpense(int[] bal, int payer, int amount, int[] shares) {
@@ -48,7 +48,7 @@ class Balances {
      * (Dafny's AddSettlementDelta), and the total is unchanged.
      */
     @Requires({ bal != null && 0 <= from && from < bal.length && 0 <= to && to < bal.length && from != to })
-    @Ensures({ result.length == bal.length && result.sum() == bal.sum() })
+    @Ensures({ result != null && result.length == bal.length && result.sum() == bal.sum() })
     @Ensures({ (0..<bal.length).every { result[it] == bal[it] + (it == from ? amount : 0) - (it == to ? amount : 0) } })
     static int[] afterSettlement(int[] bal, int from, int to, int amount) {
         int n = bal.length
@@ -86,38 +86,44 @@ class Balances {
     @Ensures({ result.length == members && result.sum() == 0 })
     static int[] of(int members, int[] payer, int[] amount, int[] flat, int[] off, int[] from, int[] to, int[] paid) {
         int[] bal = new int[members]
-        assert bal.sum() == 0
         int e = 0
         @Invariant({ 0 <= e && e <= payer.length && payer.length == amount.length && off.length == amount.length })
-        @Invariant({ bal.length == members && bal.sum() == 0 })
+        @Invariant({ bal != null && bal.length == members && bal.sum() == 0 })
         @Invariant({ (0..<payer.length).every { 0 <= payer[it] && payer[it] < members && 0 <= off[it] && off[it] + members <= flat.length } })
         @Invariant({ (0..<payer.length).every { flat[off[it]..<off[it] + members].sum(0) == amount[it] } })
         @Decreases({ payer.length - e })
         while (e < payer.length) {
-            bal[payer[e]] = bal[payer[e]] + amount[e]          // the payer is owed the amount
-            int o = off[e]
-            int s = 0
-            int i = 0
-            @Invariant({ 0 <= i && i <= members && bal.length == members && 0 <= o && o + members <= flat.length })
-            @Invariant({ s == flat[o..<o + i].sum(0) && bal.sum() == amount[e] - s })
-            @Decreases({ members - i })
-            while (i < members) {
-                bal[i] = bal[i] - flat[o + i]                  // and everyone owes their share
-                s = s + flat[o + i]
-                i = i + 1
-            }
+            int[] shares = row(flat, off[e], members)
+            bal = afterExpense(bal, payer[e], amount[e], shares)
             e = e + 1
         }
         int t = 0
         @Invariant({ 0 <= t && t <= from.length && from.length == to.length && paid.length == to.length })
-        @Invariant({ bal.length == members && bal.sum() == 0 })
+        @Invariant({ bal != null && bal.length == members && bal.sum() == 0 })
         @Invariant({ (0..<from.length).every { 0 <= from[it] && from[it] < members && 0 <= to[it] && to[it] < members && from[it] != to[it] } })
         @Decreases({ from.length - t })
         while (t < from.length) {
-            bal[from[t]] = bal[from[t]] + paid[t]
-            bal[to[t]] = bal[to[t]] - paid[t]
+            bal = afterSettlement(bal, from[t], to[t], paid[t])
             t = t + 1
         }
         return bal
+    }
+
+    /** Row o ..< o + n of the flattened shares, as its own array. */
+    @Requires({ flat != null && n >= 0 && 0 <= o && o + n <= flat.length })
+    @Ensures({ result != null && result.length == n && result.sum() == flat[o..<o + n].sum(0) })
+    static int[] row(int[] flat, int o, int n) {
+        int[] result = new int[n]
+        int r = 0
+        int i = 0
+        @Invariant({ 0 <= i && i <= n && result.length == n && 0 <= o && o + n <= flat.length })
+        @Invariant({ r == result[0..<i].sum(0) && r == flat[o..<o + i].sum(0) })
+        @Decreases({ n - i })
+        while (i < n) {
+            result[i] = flat[o + i]
+            r = r + result[i]
+            i = i + 1
+        }
+        return result
     }
 }

@@ -24,7 +24,7 @@ so the web app uses Grails 9, which is.
 | `Split.equally(total, joined)` | the shares add up to `total` exactly; non-participants pay 0; each participant pays `total.intdiv(p)` or one cent more |
 | `Balances.afterExpense` | each member's balance moves by exactly `(payer ? amount : 0) - share` (Dafny's `AddExpenseDelta`), and the total is unchanged when the shares add up to the amount |
 | `Balances.afterSettlement` | `from` gains, `to` loses, everyone else is unchanged (`AddSettlementDelta`), and the total is unchanged |
-| `Balances.of(...)` | **conservation**: after any valid history of expenses and settlements, the balances sum to zero |
+| `Balances.of(...)` | **conservation**: folding `afterExpense` and `afterSettlement` over any valid history, the balances sum to zero |
 
 Each proof was also checked for teeth: breaking the code or dropping a hypothesis makes the build
 fail. For example, giving the leftover cent to the next member regardless of whether they joined
@@ -45,7 +45,8 @@ one soundness bug, each with a repro.
 ## Building and running
 
 Needs JDK 21+ (Gradle runs on 21, groovy-verify builds with a 25 toolchain), plus a
-groovy-verify checkout next to this one (`../groovy-verify`, or `-PgroovyVerifyDir=...`).
+groovy-verify checkout next to this one (`../groovy-verify`, or `-PgroovyVerifyDir=...`) at
+`5e29afb` or later: the kernel's helper calls and its fold need fixes from there.
 groovy-fx is extracted from the `groovy11434` branch of a local apache/groovy clone
 (`-PgroovyRepo=...`, default `~/projects/groovy`), or cloned from GitHub when there is none.
 

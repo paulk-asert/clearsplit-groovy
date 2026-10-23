@@ -23,42 +23,53 @@ class Split {
     @Ensures({ (0..<joined.length).every { joined[it] == 1 ==>
         (result[it] == total.intdiv(joined.sum()) || result[it] == total.intdiv(joined.sum()) + 1) } })
     static int[] equally(int total, int[] joined) {
-        int n = joined.length
         int p = joined.sum()
         int base = total.intdiv(p)
         int left = total - p * base             // the cents lost to flooring
         assert 0 <= left && left < p
+        int[] shares = baseShares(base, joined)
+        handOut(shares, joined, left)
+    }
 
-        // everyone taking part pays base
-        int[] shares = new int[n]
+    /** Everyone taking part pays base, and nobody else pays anything. */
+    @Requires({ joined != null && (0..<joined.length).every { joined[it] == 0 || joined[it] == 1 } })
+    @Ensures({ result != null && result.length == joined.length && result.sum() == joined.sum() * base })
+    @Ensures({ (0..<joined.length).every { result[it] == (joined[it] == 1 ? base : 0) } })
+    static int[] baseShares(int base, int[] joined) {
+        int n = joined.length
+        int[] result = new int[n]
         int t = 0
         int c = 0
         int i = 0
-        @Invariant({ 0 <= i && i <= n && n == joined.length && shares.length == n && p == joined.sum() })
-        @Invariant({ t == shares[0..<i].sum(0) && c == joined[0..<i].sum(0) && t == c * base })
-        @Invariant({ (0..<i).every { shares[it] == (joined[it] == 1 ? base : 0) } })
+        @Invariant({ 0 <= i && i <= n && n == joined.length && result.length == n })
+        @Invariant({ t == result[0..<i].sum(0) && c == joined[0..<i].sum(0) && t == c * base })
+        @Invariant({ (0..<i).every { result[it] == (joined[it] == 1 ? base : 0) } })
         @Decreases({ n - i })
         while (i < n) {
-            shares[i] = joined[i] == 1 ? base : 0
-            t = t + shares[i]
+            result[i] = joined[i] == 1 ? base : 0
+            t = t + result[i]
             c = c + joined[i]
             i = i + 1
         }
-        assert c == p && t == shares.sum()
-        assert shares.sum() == p * base
+        return result
+    }
 
-        // and the first `left` of them a cent more
+    /** The shares again, with one cent more for each of the first left participants. */
+    @Requires({ shares != null && joined != null && shares.length == joined.length })
+    @Requires({ (0..<joined.length).every { joined[it] == 0 || joined[it] == 1 } && 0 <= left && left <= joined.sum() })
+    @Ensures({ result != null && result.length == shares.length && result.sum() == shares.sum() + left })
+    @Ensures({ (0..<shares.length).every { result[it] == shares[it] || (joined[it] == 1 && result[it] == shares[it] + 1) } })
+    static int[] handOut(int[] shares, int[] joined, int left) {
+        int n = shares.length
         int[] result = new int[n]
         int given = 0
         int r = 0
         int s = 0
-        c = 0
+        int c = 0
         int k = 0
-        @Invariant({ 0 <= k && k <= n && n == joined.length && shares.length == n && result.length == n })
-        @Invariant({ p == joined.sum() && shares.sum() == p * base && base == total.intdiv(p) && 0 <= left && left < p && total == p * base + left })
+        @Invariant({ 0 <= k && k <= n && n == shares.length && n == joined.length && result.length == n })
         @Invariant({ r == result[0..<k].sum(0) && s == shares[0..<k].sum(0) && c == joined[0..<k].sum(0) })
         @Invariant({ given == (c < left ? c : left) && r == s + given })
-        @Invariant({ (0..<n).every { shares[it] == (joined[it] == 1 ? base : 0) } })
         @Invariant({ (0..<k).every { result[it] == shares[it] || (joined[it] == 1 && result[it] == shares[it] + 1) } })
         @Decreases({ n - k })
         while (k < n) {
